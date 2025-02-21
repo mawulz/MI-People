@@ -31,10 +31,7 @@ function userDashboard() {
     
     const token = localStorage.getItem('authToken');
 
-    const logout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/login');
-    }
+    
     const fetchUser = async () => {
         try {
             const response = await api.get('user/profile', {
@@ -140,10 +137,10 @@ function userDashboard() {
     return (
         <>
         <Navbar title={'Dashboard'}/>
-        <div className="m-12 grid grid-cols-5 grid-rows-3">
-            <div className="col-span-2 col-start-1">
-                <div className="flex bg-slate-200 gap-4 justify-content-center py-4 px-3 border">
-                    <img src={ProfileIcon} alt="" style={{ minWidth: '50px' }}/>
+        <div className="m-12 Ygrid grid-cols-6 grid-rows-3">
+            <div className="col-span-2 col-start-2 place-items-center">
+                <div className="flex bg-slate-200 gap-4 justify-content-center py-4 px-2 border w-80">
+                    <img src={ProfileIcon} alt="" style={{ minWidth: '55px' }}/>
                     <div className='grid'>
                         <h2 className="capitalize font-bold">{user.name || 'N/A'}</h2>
                         <h5 className="">{user.role || 'N/A'}</h5>
@@ -152,26 +149,24 @@ function userDashboard() {
                     </div>
                 </div>
             </div>
-            <div className='col-start-1 col-span-2 row-start-2 place-items-center'>
+            <div className='col-start-2 col-span-2 row-start-2 justify-self-center w-80'>
                 {/* <p>Welcome back!</p>
                 <p>{user.name}</p> */}
                 {
                     role == 'admin' &&
-                    <button className="py-3 border" onClick=''>
+                    <button className="py-3 border" onClick={() => navigate('/list-department')}>
                         <span>Department</span>
                     </button>
                 }
-                <button className="py-3 border my-2" onClick={logout}>
-                    <span>Log out</span>
-                </button>
+            
             </div>
-            <div className="col-span-3 row-span-3 col-start-3 ml-2">
+            <div className="col-span-3 row-span-3 col-start-4 ml-2">
                 {/* <p className='font-bold text-2xl'>Edit Profile</p> */}
-                <div className="w-120 p-2 border">
+                <div className="w-120 p-3 border">
                     <form onSubmit={handleSubmit} className=''>
                         <div className="my-3">
                             <label htmlFor="username" className="label-input">Username</label>
-                            <div className='border px-1 py-1 bg-slate-50 w-auto'>
+                            <div className='border px-2 py-1 bg-slate-50 w-auto'>
                                 <input
                                     className='w-full'
                                     id="username"
@@ -184,7 +179,7 @@ function userDashboard() {
                         </div>
                         <div className="my-3">
                             <label htmlFor="email" className="label-input">Email</label>
-                            <div className='border px-1 py-1 bg-slate-50'>
+                            <div className='border px-2 py-1 bg-slate-50'>
                                 <input
                                     className='w-full'
                                     id="email"
@@ -198,7 +193,7 @@ function userDashboard() {
                         </div>
                         <div className="my-3">
                             <label htmlFor="oldPassword" className="label-input">Old Password</label>
-                            <div className="border px-1 py-1  bg-slate-50">
+                            <div className="border px-2 py-1  bg-slate-50">
                                 <input
                                     className="w-full"
                                     id="oldPassword"
@@ -211,7 +206,7 @@ function userDashboard() {
                         </div>
                         <div className="my-3">
                             <label htmlFor="newPassword" className="label-input">New Password</label>
-                            <div className="border px-1 py-1 bg-slate-50">
+                            <div className="border px-2 py-1 bg-slate-50">
                                 <input
                                     className="w-full"
                                     id="newPassword"
@@ -224,7 +219,7 @@ function userDashboard() {
                         </div>
                         <div className="confirmInput edit-input">
                             <label htmlFor="confirmPassword" className="label-input">Confirm Password</label>
-                            <div className="border px-1 py-1 bg-slate-50">
+                            <div className="border px-2 py-1 bg-slate-50">
                                 <input
                                     className="w-full"
                                     id="confirmPassword"

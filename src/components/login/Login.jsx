@@ -84,7 +84,7 @@ function Login() {
     };
     
     return (
-        <div className='h-screen place-content-center'>
+        <div className='h-screen place-content-center justify-items-center'>
             <div className='grid bg-slate-100 border pb-10 w-80 justify-content-center'>
             <p className='place-self-center font-bold text-2xl !mb-0'>Login</p>
                 <form onSubmit={handleSubmit} className='align-items-center'>
@@ -115,7 +115,7 @@ function Login() {
                         </div>
                     </div>
                     {errorMessage && (
-                        <div className='ms-8 mb-4 text-red-500 text-sm text-center'>
+                        <div className='my-2 text-red-500 text-sm text-center'>
                             {errorMessage}
                         </div>
                     )}
