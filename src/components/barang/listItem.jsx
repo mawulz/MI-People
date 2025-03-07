@@ -1,7 +1,7 @@
 import Navbar from '../kit/customNavbar';
 import SearchBar from '../kit/SearchBar';
 import ScrollPagination from '../kit/scrollPagination';
-import DepartmentCards from '../kit/cards/departmentCards';
+import BarangCards from '../kit/cards/itemCards';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Transition from '../kit/Transition';
@@ -11,13 +11,14 @@ import api from '../../api/api';
 import Swal from 'sweetalert2';
 import FloatingButton from '../kit/floatingButton';
 
-function listDepartment(){
+function listItems(){
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [searchTerm, setSearchTerm] = useState('')
     const [nextCursor, setNextCursor] = useState(null)
     const [contentVisible, setContentVisible] = useState(false)
+    const [empty, setEmpty] = useState(false)
     const typingTimeoutRef = useRef(null)
     const navigate = useNavigate()
 
@@ -28,8 +29,13 @@ function listDepartment(){
     const fetchItems = async () => {
         try {
             setLoading(true)
-            const response = await api.get(searchTerm ? `department/search/${searchTerm}` : '/department')
+            const response = await api.get(searchTerm ? `/barang/search/${searchTerm}` : '/barang')
             const data = response.data.data
+            if (data.data.length <= 0){
+                setEmpty(true)
+            } else {
+                setEmpty(false)
+            }
             setItems(data.data);
             setNextCursor(data.next_cursor);
         } catch (error) {
@@ -44,16 +50,16 @@ function listDepartment(){
         if (!nextCursor || loading) return;
         try {
             setLoading(true)
-            const response = await api.get(searchTerm ? `department/search/${searchTerm}` : '/department', {
+            const response = await api.get(searchTerm ? `/barang/search/${searchTerm}` : '/barang', {
                 params: {
                     cursor : nextCursor,
                 }
             })
             const data = response.data.data;
             setItems((prevItems) => {
-            const existingIds = new Set(prevItems.map(item => item.id));
-            const newItems = data.data.filter(item => !existingIds.has(item.id));
-            return [...prevItems, ...newItems];
+                const existingIds = new Set(prevItems.map(item => item.id));
+                const newItems = data.data.filter(item => !existingIds.has(item.id));
+                return [...prevItems, ...newItems];
             });
             setNextCursor(data.next_cursor);
         } catch (error) {
@@ -68,7 +74,14 @@ function listDepartment(){
     const goToUpdate = async(itemId) => {
         const encryptingID = await encrypting(itemId)
         if (encryptingID) {
-            navigate(`/department/update-department/${encryptingID}`)
+            navigate(`/barang/update-barang/${encryptingID}`)
+        }
+    }
+
+    const goToDetail = async(itemId) => {
+        const encryptingID = await encrypting(itemId)
+        if (encryptingID) {
+            navigate(`/barang/detail-barang/${encryptingID}`)
         }
     }
 
@@ -76,7 +89,7 @@ function listDepartment(){
         try {
           const result = await Swal.fire({
             title: 'Are you sure?',
-            text: `Do you really want to delete ${name} department?`,
+            text: `Apakah anda ingin menghapus barang ${name}`,
             icon: 'question',
             showDenyButton: true,
             confirmButtonText: 'Yes',
@@ -89,7 +102,7 @@ function listDepartment(){
           });
     
           if (result.isConfirmed) {
-            await api.delete(`/department/${id}`);
+            await api.delete(`/barang/${id}`);
             setItems(items.filter((data) => data.id !== id));
             Swal.fire({
                 icon: 'success',
@@ -118,10 +131,10 @@ function listDepartment(){
     return(
         <>
         {/* <Transition contentVisible={contentVisible}> */}
-            <Navbar title={'Department'}/>
+            <Navbar title={'Barang'}/>
             <div className="mx-12 p-12 pt-24 grid grid-cols-6 grid-rows-3 border border-t-0"  style={{ gridTemplateRows: 'auto auto' }}>
                 <div className='row-start-1 col-start-1 col-span-full'>
-                    <p className='!mt-0 font-bold text-5xl'>Data Department</p>
+                    <p className='!mt-0 font-bold text-5xl'>Data Barang</p>
                 </div>
                 <div className='row-start-2 col-start-1 col-span-4 place-content-center'>
                     <SearchBar disable={loading} onChange={handleSearchChange} values={searchQuery} />
@@ -129,7 +142,7 @@ function listDepartment(){
                 </div>
                 <div className='row-start-2 col-start-6 place-content-center pl-15'>
                     <button className='rounded-full py-3 !bg-green-600 !hover:bg-green-700 transition-all duration-300'
-                            onClick={() => navigate('/department/restore-department')}>
+                            onClick={() => navigate('/barang/restore-barang')}>
                         <div className='flex justify-self-center items-center gap-2'>
                             <i class='bx bx-sync bx-rotate-90 bx-xs'></i>
                             <span className='text-sm font-semibold'>Restore Data</span>
@@ -142,12 +155,12 @@ function listDepartment(){
                             <ScrollPagination fetchMoreItems={fetchMoreItems} loading={loading} nextCursor={nextCursor}>
                                 {
                                     ( items.map((data) => (
-                                        <DepartmentCards
+                                        <BarangCards
                                         key={data.id}
                                         data={data}
+                                        goToDetail={goToDetail}
                                         goToUpdate={goToUpdate}
                                         deleteItems={deleteItems}
-                                        belongsTo={'department'}
                                         />
                                     )))
                                 }
@@ -155,7 +168,7 @@ function listDepartment(){
                         </div>
                     </Transition>
                 </div>
-                <FloatingButton belongsTo='department'/>
+                <FloatingButton belongsTo='barang'/>
                     { loading && <Loader Class={'col-span-full'}/> } 
             </div>
         {/* </Transition> */}
@@ -163,4 +176,4 @@ function listDepartment(){
     );
 }
 
-export default listDepartment;
+export default listItems;

@@ -10,14 +10,21 @@
   },
   "dependencies": {
     "axios": "^1.7.9",
+    "boxicons": "^2.1.4",
+    "crypto-js": "^4.2.0",
     "framework7": "^8.3.4",
     "framework7-icons": "^5.0.5",
     "framework7-react": "^8.3.4",
+    "i18next": "^24.2.2",
+    "i18next-browser-languagedetector": "^8.0.4",
     "jwt-decode": "^4.0.0",
+    "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^15.4.1",
     "react-router-dom": "^7.1.5",
     "react-script": "^2.0.5",
+    "react-select-async-paginate": "^0.7.9",
     "sweetalert2": "^11.17.2"
   },
   "devDependencies": {

@@ -11,7 +11,7 @@ import api from '../../api/api';
 import Swal from 'sweetalert2';
 import FloatingButton from '../kit/floatingButton';
 
-function listDepartment(){
+function listDivisi(){
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -28,7 +28,7 @@ function listDepartment(){
     const fetchItems = async () => {
         try {
             setLoading(true)
-            const response = await api.get(searchTerm ? `department/search/${searchTerm}` : '/department')
+            const response = await api.get(searchTerm ? `divisi/search/${searchTerm}` : '/divisi')
             const data = response.data.data
             setItems(data.data);
             setNextCursor(data.next_cursor);
@@ -44,16 +44,16 @@ function listDepartment(){
         if (!nextCursor || loading) return;
         try {
             setLoading(true)
-            const response = await api.get(searchTerm ? `department/search/${searchTerm}` : '/department', {
+            const response = await api.get(searchTerm ? `divisi/search/${searchTerm}` : '/divisi', {
                 params: {
                     cursor : nextCursor,
                 }
             })
             const data = response.data.data;
             setItems((prevItems) => {
-            const existingIds = new Set(prevItems.map(item => item.id));
-            const newItems = data.data.filter(item => !existingIds.has(item.id));
-            return [...prevItems, ...newItems];
+                const existingIds = new Set(prevItems.map(item => item.id));
+                const newItems = data.data.filter(item => !existingIds.has(item.id));
+                return [...prevItems, ...newItems];
             });
             setNextCursor(data.next_cursor);
         } catch (error) {
@@ -68,7 +68,7 @@ function listDepartment(){
     const goToUpdate = async(itemId) => {
         const encryptingID = await encrypting(itemId)
         if (encryptingID) {
-            navigate(`/department/update-department/${encryptingID}`)
+            navigate(`/divisi/update-divisi/${encryptingID}`)
         }
     }
 
@@ -76,7 +76,7 @@ function listDepartment(){
         try {
           const result = await Swal.fire({
             title: 'Are you sure?',
-            text: `Do you really want to delete ${name} department?`,
+            text: `Do you really want to delete ${name} divisi?`,
             icon: 'question',
             showDenyButton: true,
             confirmButtonText: 'Yes',
@@ -89,7 +89,7 @@ function listDepartment(){
           });
     
           if (result.isConfirmed) {
-            await api.delete(`/department/${id}`);
+            await api.delete(`/divisi/${id}`);
             setItems(items.filter((data) => data.id !== id));
             Swal.fire({
                 icon: 'success',
@@ -118,10 +118,10 @@ function listDepartment(){
     return(
         <>
         {/* <Transition contentVisible={contentVisible}> */}
-            <Navbar title={'Department'}/>
+            <Navbar title={'Divisi'}/>
             <div className="mx-12 p-12 pt-24 grid grid-cols-6 grid-rows-3 border border-t-0"  style={{ gridTemplateRows: 'auto auto' }}>
                 <div className='row-start-1 col-start-1 col-span-full'>
-                    <p className='!mt-0 font-bold text-5xl'>Data Department</p>
+                    <p className='!mt-0 font-bold text-5xl'>Data Divisi</p>
                 </div>
                 <div className='row-start-2 col-start-1 col-span-4 place-content-center'>
                     <SearchBar disable={loading} onChange={handleSearchChange} values={searchQuery} />
@@ -129,7 +129,7 @@ function listDepartment(){
                 </div>
                 <div className='row-start-2 col-start-6 place-content-center pl-15'>
                     <button className='rounded-full py-3 !bg-green-600 !hover:bg-green-700 transition-all duration-300'
-                            onClick={() => navigate('/department/restore-department')}>
+                            onClick={() => navigate('/divisi/restore-divisi')}>
                         <div className='flex justify-self-center items-center gap-2'>
                             <i class='bx bx-sync bx-rotate-90 bx-xs'></i>
                             <span className='text-sm font-semibold'>Restore Data</span>
@@ -147,7 +147,7 @@ function listDepartment(){
                                         data={data}
                                         goToUpdate={goToUpdate}
                                         deleteItems={deleteItems}
-                                        belongsTo={'department'}
+                                        belongsTo={'divisi'}
                                         />
                                     )))
                                 }
@@ -155,7 +155,7 @@ function listDepartment(){
                         </div>
                     </Transition>
                 </div>
-                <FloatingButton belongsTo='department'/>
+                <FloatingButton belongsTo='divisi'/>
                     { loading && <Loader Class={'col-span-full'}/> } 
             </div>
         {/* </Transition> */}
@@ -163,4 +163,4 @@ function listDepartment(){
     );
 }
 
-export default listDepartment;
+export default listDivisi;

@@ -10,8 +10,9 @@ import { encrypting } from '../../helper/encryptHelper';
 import api from '../../api/api';
 import Swal from 'sweetalert2';
 import FloatingButton from '../kit/floatingButton';
+import NewForm from '../kit/cards/newFormCard';
 
-function listDepartment(){
+function restoreDivisi(){
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
@@ -28,47 +29,40 @@ function listDepartment(){
     const fetchItems = async () => {
         try {
             setLoading(true)
-            const response = await api.get(searchTerm ? `department/search/${searchTerm}` : '/department')
+            const response = await api.get(searchTerm ? `divisiTrash/${searchTerm}` : `divisiTrash`) 
             const data = response.data.data
-            setItems(data.data);
-            setNextCursor(data.next_cursor);
+            setItems(data.data)
+            setNextCursor(data.next_cursor)
         } catch (error) {
-            console.error('Error fetching items:', error);
+            console.log(error)
         } finally {
-            setTimeout(() => setContentVisible(true), 50)
             setLoading(false)
+            setTimeout(() => setContentVisible(true), 50)
         }
     }
 
-    const fetchMoreItems = async () => {
-        if (!nextCursor || loading) return;
+    const fetchMoreItems = async() => {
+        if (loading || !nextCursor) return;
         try {
             setLoading(true)
-            const response = await api.get(searchTerm ? `department/search/${searchTerm}` : '/department', {
-                params: {
-                    cursor : nextCursor,
+            const response = await api.get(searchTerm ? `divisiTrash/${searchTerm}` : `divisiTrash`, {
+                params : {
+                    cursor : nextCursor
                 }
-            })
-            const data = response.data.data;
+            }) 
+            const data = response.data.data
             setItems((prevItems) => {
-            const existingIds = new Set(prevItems.map(item => item.id));
-            const newItems = data.data.filter(item => !existingIds.has(item.id));
-            return [...prevItems, ...newItems];
-            });
-            setNextCursor(data.next_cursor);
+                const existingIds = new Set(prevItems.map(item => item.id))
+                const newIds = data.data.filter((item) => !existingIds.has(item.id))
+                return [...prevItems, ...newIds]
+            })            
+            setNextCursor(data.next_cursor)
         } catch (error) {
-            console.error('Error fetching more items:', error);
+            console.log(error)
         } finally {
             setLoading(false)
-            setTimeout(() => setContentVisible(true), 80)
-        }
-       
-    }
+            setTimeout(() => setContentVisible(true), 50)
 
-    const goToUpdate = async(itemId) => {
-        const encryptingID = await encrypting(itemId)
-        if (encryptingID) {
-            navigate(`/department/update-department/${encryptingID}`)
         }
     }
 
@@ -76,7 +70,7 @@ function listDepartment(){
         try {
           const result = await Swal.fire({
             title: 'Are you sure?',
-            text: `Do you really want to delete ${name} department?`,
+            text: `Do you really want to delete ${name} divisi?`,
             icon: 'question',
             showDenyButton: true,
             confirmButtonText: 'Yes',
@@ -89,7 +83,7 @@ function listDepartment(){
           });
     
           if (result.isConfirmed) {
-            await api.delete(`/department/${id}`);
+            await api.delete(`/divisi/${id}`);
             setItems(items.filter((data) => data.id !== id));
             Swal.fire({
                 icon: 'success',
@@ -115,26 +109,46 @@ function listDepartment(){
         }, 750);
     };
 
+    const restoreItems =  async (id, name) => {
+        try {
+            const result = await Swal.fire({
+              title: `Apakah Anda Mau Restore ${name}`,
+              icon: 'question',
+              showDenyButton: true,
+              confirmButtonText: 'Yes',
+              denyButtonText: 'No',
+              customClass: {
+                actions: 'my-actions',
+                confirmButton: 'order-2',
+                denyButton: 'order-3',
+              },
+            });
+      
+            if (result.isConfirmed) {
+              await api.get(`/divisi/restore/${id}`);
+              setItems(items.filter((item) => item.id !== id));
+              await Swal.fire('Berhasil!', '', 'success');
+            }
+        } catch (error) {
+            Swal.fire({
+                icon:'error',
+                title:'Tidak Dapat Merestore divisi',
+                text:'Ada Kesalahan Dalam Sistem'
+            })
+        }
+    }
+
     return(
         <>
         {/* <Transition contentVisible={contentVisible}> */}
-            <Navbar title={'Department'}/>
+            <Navbar title={'Divisi'}/>
             <div className="mx-12 p-12 pt-24 grid grid-cols-6 grid-rows-3 border border-t-0"  style={{ gridTemplateRows: 'auto auto' }}>
                 <div className='row-start-1 col-start-1 col-span-full'>
-                    <p className='!mt-0 font-bold text-5xl'>Data Department</p>
+                    <a onClick={() => navigate('/divisi')}>&#8592; back</a>
+                    <p className='!mt-2 font-bold text-5xl'>Restore Divisi</p>
                 </div>
                 <div className='row-start-2 col-start-1 col-span-4 place-content-center'>
                     <SearchBar disable={loading} onChange={handleSearchChange} values={searchQuery} />
-                    {/* <SearchBar /> */}
-                </div>
-                <div className='row-start-2 col-start-6 place-content-center pl-15'>
-                    <button className='rounded-full py-3 !bg-green-600 !hover:bg-green-700 transition-all duration-300'
-                            onClick={() => navigate('/department/restore-department')}>
-                        <div className='flex justify-self-center items-center gap-2'>
-                            <i class='bx bx-sync bx-rotate-90 bx-xs'></i>
-                            <span className='text-sm font-semibold'>Restore Data</span>
-                        </div>
-                    </button>
                 </div>
                 <div className='row-start-3 col-span-full'>
                     <Transition contentVisible={contentVisible}>
@@ -145,9 +159,9 @@ function listDepartment(){
                                         <DepartmentCards
                                         key={data.id}
                                         data={data}
-                                        goToUpdate={goToUpdate}
-                                        deleteItems={deleteItems}
-                                        belongsTo={'department'}
+                                        restoreItems={restoreItems}
+                                        restore={true}
+                                        belong={'divisi'}
                                         />
                                     )))
                                 }
@@ -155,7 +169,7 @@ function listDepartment(){
                         </div>
                     </Transition>
                 </div>
-                <FloatingButton belongsTo='department'/>
+                <FloatingButton ref='divisi'/>
                     { loading && <Loader Class={'col-span-full'}/> } 
             </div>
         {/* </Transition> */}
@@ -163,4 +177,4 @@ function listDepartment(){
     );
 }
 
-export default listDepartment;
+export default restoreDivisi;
